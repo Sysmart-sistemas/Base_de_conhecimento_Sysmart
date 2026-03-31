@@ -1,4 +1,4 @@
-# 📚 Base de Conhecimento - Sysmart
+# 📚 Sysmart - Sistemas
 
 ## 📄 Manual
 [Abrir manual em PDF](pdfs/manual_sysmart.pdf)
