@@ -1,5 +1,3 @@
-# Base de Conhecimento Sysmart
-
 # 📚 Base de Conhecimento - Sysmart
 
 ## 📄 Manual
