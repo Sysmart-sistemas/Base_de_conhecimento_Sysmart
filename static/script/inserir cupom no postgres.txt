@@ -1,0 +1,55 @@
+
+INSERT INTO tblpdvcupom (idNum,numCRO,numCupom,dataEmissao,numCaixa,codLoja,numCCF,numECF,codImpFiscal,
+dataMovto,operacaoId,dataOperacao,arredondaTrunca,numUsuario,mfAdicional,entregar,
+codCliente,cpfCnpjConsumidor,nomeConsumidor,codDependente,nomeDependente,endereco,enderecoEntrega,
+codVendedor,nomeVendedor,valorTotal,valorLiquido,valorDesconto,tipoDesconto,valorAcrescimo,tipoAcrescimo,
+ordemDescAcre,valorPgto,valorTroco,valorContraVale,numSerieImpFiscal,numCOO,cupomCancelado,status,clienteOrgaoPublico,
+statusTransmissao,dataTransmissao,statusProcessamento,dataProcessamento,auxProcessamento,numDav,xmlNFCe,chaveNfce,
+loteNfce,statusNfce,qrCode,dataAutorizacao,retornoNfce,
+numNFCe,dataContigencia,dataEmissaoNfce,dataHoraAutorizacao,enviadoParaContador)
+
+select idNum,numCRO,'34784' as numcupom ,dataEmissao,numCaixa,codLoja,numCCF,numECF,codImpFiscal,
+dataMovto,operacaoId,dataOperacao,arredondaTrunca,numUsuario,mfAdicional,entregar,
+codCliente,cpfCnpjConsumidor,nomeConsumidor,codDependente,nomeDependente,endereco,enderecoEntrega,
+codVendedor,nomeVendedor,valorTotal,valorLiquido,valorDesconto,tipoDesconto,valorAcrescimo,tipoAcrescimo,
+ordemDescAcre,valorPgto,valorTroco,valorContraVale,numSerieImpFiscal,numCOO,cupomCancelado,status,clienteOrgaoPublico,
+statusTransmissao,dataTransmissao,statusProcessamento,dataProcessamento,auxProcessamento,numDav,xmlnfce,'41251000470722000100650030002064501002257635' as chavenfce,
+loteNfce,statusNfce,qrCode,dataAutorizacao,retornoNfce,
+'206450' as numNFCe,dataContigencia,dataEmissaoNfce,dataHoraAutorizacao,enviadoParaContador
+from tblpdvcupom
+where valorliquido = '11.50'
+and cast (dataemissao as date)= '2025-10-11'
+
+INSERT INTO tblpdvcupomitem (numitem, acrescimo, aliqimposto, clubepromocionalid, codaliquota, codcfop, codproduto, codsittributaria,
+codigobeneficiofiscal, cstcofins, cstpis, datamovto, descproduto, desconto, gtin, idproduto, ippt, itemcancelado,
+numccf, numcoo, numserieimpfiscal, perccofins, percpis, percentualfcp, precounitario, promocao, quantidade, sittributaria, status, tipoacrescimo,
+tipodesconto, tipopreco, tipoproduto, tipopromocaoclube, unidade, valoracrescimo, valorcofins, valordescclubepromocional, valordescpromocao, 
+valordesconto, valorfcp, valorimposto, valorimpostodesonerado, valorimpostoest, valorimpostotransp, valorliquido, 
+valorpis, valortotal, valorunitario, dataemissao, idnum, numcro, numcupom)
+
+select numitem, acrescimo, aliqimposto, clubepromocionalid, codaliquota, codcfop, codproduto, codsittributaria,
+codigobeneficiofiscal, cstcofins, cstpis, datamovto, descproduto, desconto, gtin, idproduto, ippt, itemcancelado,
+numccf, numcoo, numserieimpfiscal, perccofins, percpis, percentualfcp, precounitario, promocao, quantidade, sittributaria, status, tipoacrescimo,
+tipodesconto, tipopreco, tipoproduto, tipopromocaoclube, unidade, valoracrescimo, valorcofins, valordescclubepromocional, valordescpromocao, 
+valordesconto, valorfcp, valorimposto, valorimpostodesonerado, valorimpostoest, valorimpostotransp, valorliquido, 
+valorpis, valortotal, valorunitario, dataemissao, idnum, numcro,'34784' as numcupom
+from tblpdvcupomitem
+where numcupom = '34783'
+
+
+INSERT INTO tblpdvcupompgto (numpgto, bandeiratef, codformapgto, codformapgtoimpfiscal, codoperadorautoriza, cpfcnpjemitente, datamovto, datavencimento, 
+descformapgto, descformapgtoimpfiscal, indicadorpagamento, msgcontravale, msgtefvia1, msgtefvia2, msgvinculado, niveloperadorautoriza,
+nomeemitente, nomeoperadorautoriza, numagencia, numautorizacaotef, numbanco, numccf, numcoo, numcheque, numcomp, numconta, numdocumentotef, 
+numnsu, numserieimpfiscal, numviascontravale, numviasvinculado, observacaoecf, percentualcupom, prazo, seriecheque, temcontravale, temvinculado, 
+tipoformapgto, valor, valorcontravale, valorsaque, 
+dataemissao, idnum, numcro, numcupom, cadastroredecartao)
+select numpgto, bandeiratef, codformapgto, codformapgtoimpfiscal, codoperadorautoriza, cpfcnpjemitente, datamovto, datavencimento, 
+descformapgto, descformapgtoimpfiscal, indicadorpagamento, msgcontravale, msgtefvia1, msgtefvia2, msgvinculado, niveloperadorautoriza,
+nomeemitente, nomeoperadorautoriza, numagencia, numautorizacaotef, numbanco, numccf, numcoo, numcheque, numcomp, numconta, numdocumentotef, 
+numnsu, numserieimpfiscal, numviascontravale, numviasvinculado, observacaoecf, percentualcupom, prazo, seriecheque, temcontravale, temvinculado, 
+tipoformapgto, valor, valorcontravale, valorsaque, 
+dataemissao, idnum, numcro, '34784' as numcupom, cadastroredecartao
+from tblpdvcupompgto
+where numcupom = '34783' 
+
+

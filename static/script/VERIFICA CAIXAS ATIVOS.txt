@@ -1,0 +1,40 @@
+WITH CaixasAtivos AS (
+    SELECT 
+        conn.client_net_address AS ipPdv,
+        MAX(sess.host_name) AS HostName,
+        MAX(sess.login_name) AS LoginName,
+        CASE 
+            WHEN MAX(sess.program_name) = 'Microsoft JDBC Driver for SQL Server' THEN 'caixa'
+            ELSE MAX(sess.program_name)
+        END AS ProgramName
+    FROM 
+        sys.dm_exec_sessions AS sess
+    INNER JOIN 
+        sys.dm_exec_connections AS conn 
+            ON sess.session_id = conn.session_id
+    WHERE 
+        sess.program_name IN ('SigeSSM.exe', 'Microsoft JDBC Driver for SQL Server')
+        AND sess.login_name NOT IN ('DBATUAL', 'dbadmin')
+        AND conn.client_net_address IS NOT NULL
+    GROUP BY 
+        conn.client_net_address
+)
+SELECT 
+    p.loja,
+    p.numcaixa,
+    p.ipPdv,
+    CASE 
+        WHEN a.ipPdv IS NOT NULL THEN 'Ativo'
+        ELSE 'Off-line'
+    END AS Status,
+    a.HostName,
+    a.LoginName,
+    a.ProgramName
+FROM 
+    tblpdvcaixa AS p
+LEFT JOIN 
+    CaixasAtivos AS a 
+        ON p.ipPdv COLLATE SQL_Latin1_General_CP1_CI_AS = a.ipPdv COLLATE SQL_Latin1_General_CP1_CI_AS
+ORDER BY 
+    p.loja,
+    p.numcaixa;

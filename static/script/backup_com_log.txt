@@ -1,0 +1,100 @@
+USE [SSMBASE]
+GO
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[sp_BackupComRemocaoAntigos]
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @nomeArquivo NVARCHAR(200);
+    DECLARE @nomeBanco NVARCHAR(50);
+    DECLARE @comandoRemoverAntigos NVARCHAR(500);
+    DECLARE @caminhoBackup NVARCHAR(200);
+    DECLARE @diaSemana NVARCHAR(3);
+    DECLARE @errorMessage NVARCHAR(4000);
+    DECLARE @logMessage NVARCHAR(MAX);
+    DECLARE @status NVARCHAR(20);
+    DECLARE @logFile NVARCHAR(200);
+
+    -- Configurações
+    SET @nomeBanco = 'SSMBASE';
+    SET @caminhoBackup = 'D:\ssmconfig\backup\';  -- Substitua pelo caminho desejado
+    SET @logFile = 'D:\ssmconfig\backup\backup_log.txt'; -- Caminho para o arquivo de log
+
+    -- Obter o dia da semana atual (abreviação em português)
+    SET @diaSemana = CASE DATENAME(WEEKDAY, GETDATE())
+                     WHEN 'Monday' THEN 'seg'
+                     WHEN 'Tuesday' THEN 'ter'
+                     WHEN 'Wednesday' THEN 'qua'
+                     WHEN 'Thursday' THEN 'qui'
+                     WHEN 'Friday' THEN 'sex'
+                     WHEN 'Saturday' THEN 'sab'
+                     WHEN 'Sunday' THEN 'dom'
+                     END;
+
+    -- Construir o caminho do arquivo com o nome do banco e o dia da semana
+    SET @nomeArquivo = @caminhoBackup + @nomeBanco + '-' + @diaSemana + '.bak';
+
+    BEGIN TRY
+        -- Comando para remover backups antigos (mais de 7 dias)
+        SET @comandoRemoverAntigos = 'forfiles /p "' + @caminhoBackup + '" /s /m *.bak /d -7 /c "cmd /c del @path"';
+
+        -- Executar o comando de remoção de arquivos antigos
+        EXEC xp_cmdshell @comandoRemoverAntigos, NO_OUTPUT;
+
+        -- Fazer o backup do banco de dados com compressão
+        BACKUP DATABASE @nomeBanco
+        TO DISK = @nomeArquivo
+        WITH FORMAT,
+             MEDIANAME = 'NomeMidiaBackup',
+             NAME = 'NomeBackupCompleto',
+             COMPRESSION;
+
+        -- Mensagem de log de sucesso
+        SET @status = 'Sucesso';
+        SET @logMessage = 'Backup do banco de dados ' + @nomeBanco + ' realizado com sucesso em ' + @nomeArquivo + '.';
+    END TRY
+    BEGIN CATCH
+        -- Capturar o erro
+        SET @errorMessage = ERROR_MESSAGE();
+
+        -- Mensagem de log de erro
+        SET @status = 'Erro';
+        SET @logMessage = 'Erro ao realizar backup do banco de dados ' + @nomeBanco + ': ' + @errorMessage;
+
+        -- Registro de log de erro
+        INSERT INTO ErrorLog (ErrorMessage, ErrorDate) VALUES (@errorMessage, GETDATE());
+    END CATCH;
+
+    -- Gravar log em arquivo
+    DECLARE @logCmd NVARCHAR(500);
+    SET @logCmd = 'echo ' + @logMessage + ' >> ' + @logFile;
+    EXEC xp_cmdshell @logCmd, NO_OUTPUT;
+
+    -- Comando para remover logs antigos (mais de 7 dias)
+    SET @comandoRemoverAntigos = 'forfiles /p "' + @caminhoBackup + '" /s /m backup_log.txt /d -7 /c "cmd /c del @path"';
+    EXEC xp_cmdshell @comandoRemoverAntigos, NO_OUTPUT;
+END;
+GO
+-----
+CREATE TABLE ErrorLog (
+    ErrorID INT PRIMARY KEY IDENTITY(1,1),
+    ErrorMessage NVARCHAR(MAX),
+    ErrorDate DATETIME
+);
+
+-----------
+sp_configure 'show advanced options', 1;
+GO
+RECONFIGURE;
+GO
+sp_configure 'xp_cmdshell', 1;
+GO
+RECONFIGURE;
+GO
