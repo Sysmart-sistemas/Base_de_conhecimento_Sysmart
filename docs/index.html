@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Manual Sysmart</title>
+</head>
+<body>
+
+<h1>📄 Manual Sysmart</h1>
+
+<div id="lista">Carregando PDFs...</div>
+
+<script>
+async function carregar() {
+    const url = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf";
+
+    const res = await fetch(url);
+    const files = await res.json();
+
+    let html = "<ul>";
+
+    files.forEach(f => {
+        if (f.name.endsWith(".pdf")) {
+            const nome = f.name.replace(".pdf", "");
+            html += `<li>📄 <a href="${f.download_url}" target="_blank">${nome}</a></li>`;
+        }
+    });
+
+    html += "</ul>";
+
+    document.getElementById("lista").innerHTML = html;
+}
+
+carregar();
+</script>
+
+</body>
+</html>
