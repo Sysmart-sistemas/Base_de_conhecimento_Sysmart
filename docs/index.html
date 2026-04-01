@@ -89,6 +89,13 @@ a {
     font-size: 13px;
 }
 
+/* SECTION TITLE */
+h2.section {
+    margin-top: 30px;
+    border-left: 4px solid #2563eb;
+    padding-left: 10px;
+}
+
 /* DARK BUTTON */
 .toggle {
     cursor: pointer;
@@ -108,11 +115,7 @@ a {
     <h2>📁 Sysmart</h2>
 
     <div class="menu">
-        <div onclick="filtrarCategoria('')"><i class="fa fa-list"></i> Todos (<span id="total">0</span>)</div>
-        <div onclick="filtrarCategoria('sql')"><i class="fa fa-database"></i> SQL</div>
-        <div onclick="filtrarCategoria('windows')"><i class="fa fa-desktop"></i> Windows</div>
-        <div onclick="filtrarCategoria('backup')"><i class="fa fa-box"></i> Backup</div>
-        <div onclick="filtrarCategoria('rede')"><i class="fa fa-network-wired"></i> Rede</div>
+        <div onclick="filtrarCategoria('')"><i class="fa fa-list"></i> Todos</div>
     </div>
 
     <br>
@@ -123,50 +126,45 @@ a {
 
 <h1>📄 Manual Sysmart</h1>
 
-<input type="text" id="busca" placeholder="🔎 Não hesite em pesquisar mais...." onkeyup="buscar()">
+<input type="text" id="busca" placeholder="🔎 Pesquisar..." onkeyup="buscar()">
 
-<div id="lista">Carregando...</div>
+<div id="conteudo">Carregando...</div>
 
 </div>
 
 <script>
 
-let arquivos = [];
-let filtroAtual = "";
+let pdfs = [];
+let scripts = [];
 
-// categoria
-function categoria(nome) {
-    nome = nome.toLowerCase();
-    if (nome.includes("sql")) return "sql";
-    if (nome.includes("windows")) return "windows";
-    if (nome.includes("backup")) return "backup";
-    if (nome.includes("rede")) return "rede";
-    return "outros";
-}
-
-// carregar arquivos
+// carregar pastas
 async function carregar() {
-    const url = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf";
 
-    const res = await fetch(url);
-    arquivos = await res.json();
+    const pdfUrl = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf";
+    const scriptUrl = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/script";
 
-    atualizar();
+    const [pdfRes, scriptRes] = await Promise.all([
+        fetch(pdfUrl),
+        fetch(scriptUrl)
+    ]);
+
+    pdfs = await pdfRes.json();
+    scripts = await scriptRes.json();
+
+    render();
 }
 
-// mostrar
-function atualizar() {
-    let lista = arquivos.filter(f => f.name.endsWith(".pdf"));
-
-    if (filtroAtual) {
-        lista = lista.filter(f => categoria(f.name) === filtroAtual);
-    }
-
-    document.getElementById("total").innerText = lista.length;
+// renderizar tudo separado
+function render() {
 
     let html = "";
 
-    lista.forEach(f => {
+    // PDFs
+    html += `<h2 class="section">📄 PDFs</h2>`;
+
+    pdfs.forEach(f => {
+        if (!f.name.endsWith(".pdf")) return;
+
         let nome = f.name.replace(".pdf", "");
 
         html += `
@@ -181,41 +179,69 @@ function atualizar() {
         </div>`;
     });
 
-    document.getElementById("lista").innerHTML = html;
+    // Scripts
+    html += `<h2 class="section">💻 Scripts</h2>`;
+
+    scripts.forEach(f => {
+
+        let nome = f.name;
+
+        html += `
+        <div class="card">
+            <div>💻 ${nome}</div>
+            <div style="display:flex; gap:8px;">
+                <a href="${f.download_url}" target="_blank">Download</a>
+            </div>
+        </div>`;
+    });
+
+    document.getElementById("conteudo").innerHTML = html;
 }
 
-// busca tipo Google
+// busca geral
 function buscar() {
     let t = document.getElementById("busca").value.toLowerCase();
 
-    let filtrado = arquivos.filter(f =>
-        f.name.toLowerCase().includes(t)
-    );
-
     let html = "";
 
-    filtrado.forEach(f => {
-        let nome = f.name.replace(".pdf", "");
+    // PDFs filtrados
+    html += `<h2 class="section">📄 PDFs</h2>`;
 
-        html += `
-        <div class="card">
-            <div>📄 ${nome}</div>
-            <div style="display:flex; gap:8px;">
-                <a href="${f.download_url}" target="_blank">Download</a>
-                <a href="https://docs.google.com/gview?url=${encodeURIComponent(f.download_url)}&embedded=true" target="_blank">
-                    Visualizar
-                </a>
-            </div>
-        </div>`;
-    });
+    pdfs
+        .filter(f => f.name.toLowerCase().includes(t))
+        .forEach(f => {
 
-    document.getElementById("lista").innerHTML = html;
-}
+            let nome = f.name.replace(".pdf", "");
 
-// filtro sidebar
-function filtrarCategoria(cat) {
-    filtroAtual = cat;
-    atualizar();
+            html += `
+            <div class="card">
+                <div>📄 ${nome}</div>
+                <div style="display:flex; gap:8px;">
+                    <a href="${f.download_url}" target="_blank">Download</a>
+                    <a href="https://docs.google.com/gview?url=${encodeURIComponent(f.download_url)}&embedded=true" target="_blank">
+                        Visualizar
+                    </a>
+                </div>
+            </div>`;
+        });
+
+    // Scripts filtrados
+    html += `<h2 class="section">💻 Scripts</h2>`;
+
+    scripts
+        .filter(f => f.name.toLowerCase().includes(t))
+        .forEach(f => {
+
+            html += `
+            <div class="card">
+                <div>💻 ${f.name}</div>
+                <div style="display:flex; gap:8px;">
+                    <a href="${f.download_url}" target="_blank">Download</a>
+                </div>
+            </div>`;
+        });
+
+    document.getElementById("conteudo").innerHTML = html;
 }
 
 // modo escuro
