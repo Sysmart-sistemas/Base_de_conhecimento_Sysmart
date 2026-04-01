@@ -3,26 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <title>Manual Sysmart</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+        }
+
+        input {
+            padding: 10px;
+            width: 300px;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: #0066cc;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
+
 <body>
 
-<h1>📄 Manual Sysmart</h1>
+<h1>📄 Manual do Sistema Sysmart</h1>
+
+<h2>🔎 Buscar relatório</h2>
+<input type="text" id="busca" placeholder="Digite o nome do PDF..." onkeyup="filtrar()">
+
+<h2>📁 Lista de relatórios</h2>
 
 <div id="lista">Carregando PDFs...</div>
 
 <script>
-async function carregar() {
+
+let arquivosPDF = [];
+
+// carregar PDFs do GitHub
+async function carregarPDFs() {
     const url = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf";
 
-    const res = await fetch(url);
-    const files = await res.json();
+    const resposta = await fetch(url);
+    arquivosPDF = await resposta.json();
 
+    mostrar(arquivosPDF);
+}
+
+// mostrar lista na tela
+function mostrar(lista) {
     let html = "<ul>";
 
-    files.forEach(f => {
-        if (f.name.endsWith(".pdf")) {
-            const nome = f.name.replace(".pdf", "");
-            html += `<li>📄 <a href="${f.download_url}" target="_blank">${nome}</a></li>`;
+    lista.forEach(file => {
+        if (file.name.endsWith(".pdf")) {
+            const nome = file.name.replace(".pdf", "");
+            html += `<li>📄 <a href="${file.download_url}" target="_blank">${nome}</a></li>`;
         }
     });
 
@@ -31,7 +77,19 @@ async function carregar() {
     document.getElementById("lista").innerHTML = html;
 }
 
-carregar();
+// filtro da busca
+function filtrar() {
+    let texto = document.getElementById("busca").value.toLowerCase();
+
+    let filtrados = arquivosPDF.filter(file =>
+        file.name.toLowerCase().includes(texto)
+    );
+
+    mostrar(filtrados);
+}
+
+carregarPDFs();
+
 </script>
 
 </body>
