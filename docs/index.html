@@ -2,66 +2,99 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Manual Sysmart</title>
+<title>Sysmart Manual</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f9;
-    margin: 0;
-    padding: 20px;
+:root {
+    --bg: #f4f6f9;
+    --card: white;
+    --text: #222;
+    --sidebar: #1f2937;
+    --sidebar-text: white;
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 10px;
+body.dark {
+    --bg: #111827;
+    --card: #1f2937;
+    --text: white;
+    --sidebar: #000;
+    --sidebar-text: #fff;
+}
+
+body {
+    margin: 0;
+    font-family: Arial;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 220px;
+    background: var(--sidebar);
+    color: var(--sidebar-text);
+    height: 100vh;
+    padding: 20px;
+    position: fixed;
+}
+
+.sidebar h2 {
+    font-size: 18px;
+}
+
+.menu {
+    margin-top: 20px;
+}
+
+.menu div {
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+/* MAIN */
+.main {
+    margin-left: 240px;
+    padding: 20px;
+    width: 100%;
 }
 
 input {
     width: 100%;
-    max-width: 400px;
-    padding: 12px;
-    margin: 20px auto;
-    display: block;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+    max-width: 500px;
+    padding: 10px;
+    margin-bottom: 10px;
 }
 
-.container {
-    max-width: 900px;
-    margin: auto;
-}
-
+/* CARD */
 .card {
-    background: white;
-    padding: 15px;
+    background: var(--card);
+    padding: 12px;
     margin: 10px 0;
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-.category {
-    font-size: 12px;
-    padding: 3px 8px;
-    background: #e0e0e0;
-    border-radius: 5px;
-    margin-left: 10px;
-}
-
-a.button {
-    background: #007bff;
-    color: white;
-    padding: 6px 10px;
-    border-radius: 6px;
+/* BUTTON */
+a {
     text-decoration: none;
-    font-size: 12px;
+    padding: 6px 10px;
+    background: #2563eb;
+    color: white;
+    border-radius: 6px;
 }
 
-a.button:hover {
-    background: #0056b3;
+/* DARK BUTTON */
+.toggle {
+    cursor: pointer;
+    padding: 6px 10px;
+    background: #444;
+    color: white;
+    border-radius: 6px;
+    display: inline-block;
 }
 </style>
 
@@ -69,70 +102,111 @@ a.button:hover {
 
 <body>
 
+<div class="sidebar">
+    <h2>📁 Sysmart</h2>
+
+    <div class="menu">
+        <div onclick="filtrarCategoria('')"><i class="fa fa-list"></i> Todos (<span id="total">0</span>)</div>
+        <div onclick="filtrarCategoria('sql')"><i class="fa fa-database"></i> SQL</div>
+        <div onclick="filtrarCategoria('windows')"><i class="fa fa-desktop"></i> Windows</div>
+        <div onclick="filtrarCategoria('backup')"><i class="fa fa-box"></i> Backup</div>
+        <div onclick="filtrarCategoria('rede')"><i class="fa fa-network-wired"></i> Rede</div>
+    </div>
+
+    <br>
+    <div class="toggle" onclick="toggleDark()">🌙 Modo</div>
+</div>
+
+<div class="main">
+
 <h1>📄 Manual Sysmart</h1>
 
-<input type="text" id="busca" placeholder="🔎 Buscar relatório..." onkeyup="filtrar()">
+<input type="text" id="busca" placeholder="🔎 Buscar tipo Google..." onkeyup="buscar()">
 
-<div class="container" id="lista">Carregando...</div>
+<div id="lista">Carregando...</div>
+
+</div>
 
 <script>
 
 let arquivos = [];
+let filtroAtual = "";
 
-// define categoria automaticamente pelo nome
+// categoria
 function categoria(nome) {
     nome = nome.toLowerCase();
-
-    if (nome.includes("sql")) return "SQL";
-    if (nome.includes("windows")) return "Windows";
-    if (nome.includes("backup")) return "Backup";
-    if (nome.includes("rede")) return "Rede";
-
-    return "Geral";
+    if (nome.includes("sql")) return "sql";
+    if (nome.includes("windows")) return "windows";
+    if (nome.includes("backup")) return "backup";
+    if (nome.includes("rede")) return "rede";
+    return "outros";
 }
 
+// carregar arquivos
 async function carregar() {
     const url = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf";
 
     const res = await fetch(url);
     arquivos = await res.json();
 
-    arquivos.sort((a, b) => a.name.localeCompare(b.name));
-
-    mostrar(arquivos);
+    atualizar();
 }
 
-function mostrar(lista) {
+// mostrar
+function atualizar() {
+    let lista = arquivos.filter(f => f.name.endsWith(".pdf"));
+
+    if (filtroAtual) {
+        lista = lista.filter(f => categoria(f.name) === filtroAtual);
+    }
+
+    document.getElementById("total").innerText = lista.length;
+
     let html = "";
 
-    lista.forEach(file => {
-        if (!file.name.endsWith(".pdf")) return;
-
-        let nome = file.name.replace(".pdf", "");
-        let cat = categoria(nome);
-
+    lista.forEach(f => {
+        let nome = f.name.replace(".pdf", "");
         html += `
         <div class="card">
-            <div>
-                📄 ${nome}
-                <span class="category">${cat}</span>
-            </div>
-
-            <a class="button" href="${file.download_url}" target="_blank">Download</a>
+            <div>📄 ${nome}</div>
+            <a href="${f.download_url}" target="_blank">Download</a>
         </div>`;
     });
 
     document.getElementById("lista").innerHTML = html;
 }
 
-function filtrar() {
-    let texto = document.getElementById("busca").value.toLowerCase();
+// busca tipo Google
+function buscar() {
+    let t = document.getElementById("busca").value.toLowerCase();
 
-    let filtrados = arquivos.filter(f =>
-        f.name.toLowerCase().includes(texto)
+    let filtrado = arquivos.filter(f =>
+        f.name.toLowerCase().includes(t)
     );
 
-    mostrar(filtrados);
+    let html = "";
+
+    filtrado.forEach(f => {
+        let nome = f.name.replace(".pdf", "");
+        html += `
+        <div class="card">
+            <div>📄 ${nome}</div>
+            <a href="${f.download_url}" target="_blank">Download</a>
+        </div>`;
+    });
+
+    document.getElementById("lista").innerHTML = html;
+}
+
+// filtro sidebar
+function filtrarCategoria(cat) {
+    filtroAtual = cat;
+    atualizar();
+}
+
+// modo escuro
+function toggleDark() {
+    document.body.classList.toggle("dark");
 }
 
 carregar();
