@@ -41,14 +41,6 @@ body {
     position: fixed;
 }
 
-.sidebar h2 {
-    font-size: 18px;
-}
-
-.menu {
-    margin-top: 20px;
-}
-
 .menu div {
     margin: 10px 0;
     cursor: pointer;
@@ -89,14 +81,12 @@ a {
     font-size: 13px;
 }
 
-/* SECTION TITLE */
 h2.section {
     margin-top: 30px;
     border-left: 4px solid #2563eb;
     padding-left: 10px;
 }
 
-/* DARK BUTTON */
 .toggle {
     cursor: pointer;
     padding: 6px 10px;
@@ -115,7 +105,9 @@ h2.section {
     <h2>📁 Sysmart</h2>
 
     <div class="menu">
-        <div onclick="filtrarCategoria('')"><i class="fa fa-list"></i> Todos</div>
+        <div onclick="filtrarTipo('todos')">📁 Todos</div>
+        <div onclick="filtrarTipo('pdf')">📄 PDFs</div>
+        <div onclick="filtrarTipo('script')">💻 Scripts</div>
     </div>
 
     <br>
@@ -136,8 +128,9 @@ h2.section {
 
 let pdfs = [];
 let scripts = [];
+let filtro = "todos";
 
-// carregar pastas
+// carregar dados
 async function carregar() {
 
     const pdfUrl = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf";
@@ -154,62 +147,17 @@ async function carregar() {
     render();
 }
 
-// renderizar tudo separado
+// render
 function render() {
 
     let html = "";
 
     // PDFs
-    html += `<h2 class="section">📄 PDFs</h2>`;
+    if (filtro === "todos" || filtro === "pdf") {
+        html += `<h2 class="section">📄 PDFs</h2>`;
 
-    pdfs.forEach(f => {
-        if (!f.name.endsWith(".pdf")) return;
-
-        let nome = f.name.replace(".pdf", "");
-
-        html += `
-        <div class="card">
-            <div>📄 ${nome}</div>
-            <div style="display:flex; gap:8px;">
-                <a href="${f.download_url}" target="_blank">Download</a>
-                <a href="https://docs.google.com/gview?url=${encodeURIComponent(f.download_url)}&embedded=true" target="_blank">
-                    Visualizar
-                </a>
-            </div>
-        </div>`;
-    });
-
-    // Scripts
-    html += `<h2 class="section">💻 Scripts</h2>`;
-
-    scripts.forEach(f => {
-
-        let nome = f.name;
-
-        html += `
-        <div class="card">
-            <div>💻 ${nome}</div>
-            <div style="display:flex; gap:8px;">
-                <a href="${f.download_url}" target="_blank">Download</a>
-            </div>
-        </div>`;
-    });
-
-    document.getElementById("conteudo").innerHTML = html;
-}
-
-// busca geral
-function buscar() {
-    let t = document.getElementById("busca").value.toLowerCase();
-
-    let html = "";
-
-    // PDFs filtrados
-    html += `<h2 class="section">📄 PDFs</h2>`;
-
-    pdfs
-        .filter(f => f.name.toLowerCase().includes(t))
-        .forEach(f => {
+        pdfs.forEach(f => {
+            if (!f.name.endsWith(".pdf")) return;
 
             let nome = f.name.replace(".pdf", "");
 
@@ -224,13 +172,13 @@ function buscar() {
                 </div>
             </div>`;
         });
+    }
 
-    // Scripts filtrados
-    html += `<h2 class="section">💻 Scripts</h2>`;
+    // Scripts
+    if (filtro === "todos" || filtro === "script") {
+        html += `<h2 class="section">💻 Scripts</h2>`;
 
-    scripts
-        .filter(f => f.name.toLowerCase().includes(t))
-        .forEach(f => {
+        scripts.forEach(f => {
 
             html += `
             <div class="card">
@@ -240,6 +188,61 @@ function buscar() {
                 </div>
             </div>`;
         });
+    }
+
+    document.getElementById("conteudo").innerHTML = html;
+}
+
+// filtro sidebar
+function filtrarTipo(tipo) {
+    filtro = tipo;
+    render();
+}
+
+// busca
+function buscar() {
+    let t = document.getElementById("busca").value.toLowerCase();
+
+    let html = "";
+
+    if (filtro === "todos" || filtro === "pdf") {
+        html += `<h2 class="section">📄 PDFs</h2>`;
+
+        pdfs
+            .filter(f => f.name.toLowerCase().includes(t))
+            .forEach(f => {
+
+                let nome = f.name.replace(".pdf", "");
+
+                html += `
+                <div class="card">
+                    <div>📄 ${nome}</div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="${f.download_url}" target="_blank">Download</a>
+                        <a href="https://docs.google.com/gview?url=${encodeURIComponent(f.download_url)}&embedded=true" target="_blank">
+                            Visualizar
+                        </a>
+                    </div>
+                </div>`;
+            });
+    }
+
+    if (filtro === "todos" || filtro === "script") {
+        html += `<h2 class="section">💻 Scripts</h2>`;
+
+        scripts
+            .filter(f => f.name.toLowerCase().includes(t))
+            .forEach(f => {
+
+                html += `
+                <div class="card">
+                    <div>💻 ${f.name}</div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="${f.download_url}" target="_blank">Download</a>
+                    </div>
+                </div>`;
+            });
+    }
 
     document.getElementById("conteudo").innerHTML = html;
 }
