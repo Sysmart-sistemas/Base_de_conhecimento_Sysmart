@@ -31,7 +31,6 @@ body {
     display: flex;
 }
 
-/* SIDEBAR */
 .sidebar {
     width: 220px;
     background: var(--sidebar);
@@ -46,7 +45,6 @@ body {
     cursor: pointer;
 }
 
-/* MAIN */
 .main {
     margin-left: 240px;
     padding: 20px;
@@ -60,7 +58,6 @@ input {
     margin-bottom: 10px;
 }
 
-/* CARD */
 .card {
     background: var(--card);
     padding: 12px;
@@ -71,7 +68,6 @@ input {
     align-items: center;
 }
 
-/* BUTTON */
 a {
     text-decoration: none;
     padding: 6px 10px;
@@ -108,6 +104,7 @@ h2.section {
         <div onclick="filtrarTipo('todos')">📁 Todos</div>
         <div onclick="filtrarTipo('pdf')">📄 PDFs</div>
         <div onclick="filtrarTipo('script')">💻 Scripts</div>
+        <div onclick="filtrarTipo('python')">🐍 Python</div>
     </div>
 
     <br>
@@ -128,6 +125,7 @@ h2.section {
 
 let pdfs = [];
 let scripts = [];
+let projetosPython = [];
 let filtro = "todos";
 
 // carregar dados
@@ -135,14 +133,17 @@ async function carregar() {
 
     const pdfUrl = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf";
     const scriptUrl = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/script";
+    const pythonUrl = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/projeto_em_python";
 
-    const [pdfRes, scriptRes] = await Promise.all([
+    const [pdfRes, scriptRes, pythonRes] = await Promise.all([
         fetch(pdfUrl),
-        fetch(scriptUrl)
+        fetch(scriptUrl),
+        fetch(pythonUrl)
     ]);
 
     pdfs = await pdfRes.json();
     scripts = await scriptRes.json();
+    projetosPython = await pythonRes.json();
 
     render();
 }
@@ -185,6 +186,22 @@ function render() {
                 <div>💻 ${f.name}</div>
                 <div style="display:flex; gap:8px;">
                     <a href="${f.download_url}" target="_blank">Download</a>
+                </div>
+            </div>`;
+        });
+    }
+
+    // Python
+    if (filtro === "todos" || filtro === "python") {
+        html += `<h2 class="section">🐍 Projetos Python</h2>`;
+
+        projetosPython.forEach(f => {
+
+            html += `
+            <div class="card">
+                <div>🐍 ${f.name}</div>
+                <div style="display:flex; gap:8px;">
+                    <a href="${f.html_url}" target="_blank">Abrir</a>
                 </div>
             </div>`;
         });
@@ -239,6 +256,23 @@ function buscar() {
                     <div>💻 ${f.name}</div>
                     <div style="display:flex; gap:8px;">
                         <a href="${f.download_url}" target="_blank">Download</a>
+                    </div>
+                </div>`;
+            });
+    }
+
+    if (filtro === "todos" || filtro === "python") {
+        html += `<h2 class="section">🐍 Projetos Python</h2>`;
+
+        projetosPython
+            .filter(f => f.name.toLowerCase().includes(t))
+            .forEach(f => {
+
+                html += `
+                <div class="card">
+                    <div>🐍 ${f.name}</div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="${f.html_url}" target="_blank">Abrir</a>
                     </div>
                 </div>`;
             });
