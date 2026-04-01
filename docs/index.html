@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <title>Sysmart Manual</title>
@@ -9,23 +9,23 @@
 <style>
 :root {
     --bg: #f4f6f9;
-    --card: white;
+    --card: #ffffff;
     --text: #222;
     --sidebar: #1f2937;
-    --sidebar-text: white;
+    --sidebar-text: #ffffff;
 }
 
 body.dark {
-    --bg: #111827;
-    --card: #1f2937;
-    --text: white;
-    --sidebar: #000;
-    --sidebar-text: #fff;
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #ffffff;
+    --sidebar: #000000;
+    --sidebar-text: #ffffff;
 }
 
 body {
     margin: 0;
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
     display: flex;
@@ -34,24 +34,25 @@ body {
 /* SIDEBAR */
 .sidebar {
     width: 220px;
+    height: 100vh;
     background: var(--sidebar);
     color: var(--sidebar-text);
-    height: 100vh;
     padding: 20px;
     position: fixed;
 }
 
 .sidebar h2 {
-    font-size: 18px;
-}
-
-.menu {
-    margin-top: 20px;
+    margin: 0 0 20px;
 }
 
 .menu div {
-    margin: 10px 0;
+    margin: 12px 0;
     cursor: pointer;
+    font-size: 14px;
+}
+
+.menu div:hover {
+    opacity: 0.8;
 }
 
 /* MAIN */
@@ -61,11 +62,18 @@ body {
     width: 100%;
 }
 
+h1 {
+    margin-top: 0;
+}
+
+/* INPUT */
 input {
     width: 100%;
     max-width: 500px;
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 15px;
 }
 
 /* CARD */
@@ -76,25 +84,40 @@ input {
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: scale(1.01);
+    transition: 0.2s;
 }
 
 /* BUTTON */
 a {
     text-decoration: none;
-    padding: 6px 10px;
     background: #2563eb;
     color: white;
+    padding: 6px 10px;
     border-radius: 6px;
+    font-size: 13px;
 }
 
-/* DARK BUTTON */
+/* TOP INFO */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
 .toggle {
     cursor: pointer;
-    padding: 6px 10px;
     background: #444;
     color: white;
+    padding: 6px 10px;
     border-radius: 6px;
-    display: inline-block;
+    font-size: 13px;
 }
 </style>
 
@@ -102,6 +125,7 @@ a {
 
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
     <h2>📁 Sysmart</h2>
 
@@ -114,16 +138,21 @@ a {
     </div>
 
     <br>
-    <div class="toggle" onclick="toggleDark()">🌙 Modo</div>
+    <div class="toggle" onclick="toggleDark()">🌙 Modo Escuro</div>
 </div>
 
+<!-- MAIN -->
 <div class="main">
 
 <h1>📄 Manual Sysmart</h1>
 
-<input type="text" id="busca" placeholder="🔎 Não hesite em pesquisar mais...." onkeyup="buscar()">
+<div class="topbar">
+    <span>📚 Base de conhecimento do sistema</span>
+</div>
 
-<div id="lista">Carregando...</div>
+<input type="text" id="busca" placeholder="🔎 Buscar relatório..." onkeyup="buscar()">
+
+<div id="lista">Carregando PDFs...</div>
 
 </div>
 
@@ -132,7 +161,14 @@ a {
 let arquivos = [];
 let filtroAtual = "";
 
-// categoria
+// normalizar texto
+function normalizar(texto) {
+    return texto.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+// categoria automática
 function categoria(nome) {
     nome = nome.toLowerCase();
     if (nome.includes("sql")) return "sql";
@@ -142,66 +178,65 @@ function categoria(nome) {
     return "outros";
 }
 
-// carregar arquivos
+// carregar PDFs do GitHub
 async function carregar() {
     const url = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf";
 
     const res = await fetch(url);
     arquivos = await res.json();
 
-    atualizar();
+    arquivos = arquivos.filter(f => f.name.endsWith(".pdf"));
+
+    document.getElementById("total").innerText = arquivos.length;
+
+    render(arquivos);
 }
 
-// mostrar
-function atualizar() {
-    let lista = arquivos.filter(f => f.name.endsWith(".pdf"));
-
-    if (filtroAtual) {
-        lista = lista.filter(f => categoria(f.name) === filtroAtual);
-    }
-
-    document.getElementById("total").innerText = lista.length;
-
+// renderizar lista
+function render(lista, termo="") {
     let html = "";
 
     lista.forEach(f => {
+
         let nome = f.name.replace(".pdf", "");
+        let cat = categoria(nome);
+
+        if (termo && !normalizar(nome).includes(termo)) return;
+
         html += `
         <div class="card">
-            <div>📄 ${nome}</div>
+            <div>
+                📄 ${nome}
+                <small style="opacity:0.6;">(${cat})</small>
+            </div>
+
             <a href="${f.download_url}" target="_blank">Download</a>
         </div>`;
     });
 
-    document.getElementById("lista").innerHTML = html;
+    document.getElementById("lista").innerHTML = html || "Nenhum resultado encontrado";
 }
 
-// busca tipo Google
+// busca estilo Google
 function buscar() {
-    let t = document.getElementById("busca").value.toLowerCase();
-
-    let filtrado = arquivos.filter(f =>
-        f.name.toLowerCase().includes(t)
-    );
-
-    let html = "";
-
-    filtrado.forEach(f => {
-        let nome = f.name.replace(".pdf", "");
-        html += `
-        <div class="card">
-            <div>📄 ${nome}</div>
-            <a href="${f.download_url}" target="_blank">Download</a>
-        </div>`;
-    });
-
-    document.getElementById("lista").innerHTML = html;
+    let t = normalizar(document.getElementById("busca").value);
+    render(arquivos, t);
 }
 
 // filtro sidebar
 function filtrarCategoria(cat) {
     filtroAtual = cat;
-    atualizar();
+
+    if (!cat) {
+        render(arquivos);
+        return;
+    }
+
+    let filtrados = arquivos.filter(f =>
+        categoria(f.name) === cat
+    );
+
+    render(filtrados);
 }
 
 // modo escuro
