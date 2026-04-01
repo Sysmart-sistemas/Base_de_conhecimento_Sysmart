@@ -1,94 +1,141 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Manual Sysmart</title>
+<meta charset="UTF-8">
+<title>Manual Sysmart</title>
 
-    <style>
-        body {
-            font-family: Arial;
-            margin: 20px;
-        }
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    padding: 20px;
+}
 
-        input {
-            padding: 10px;
-            width: 300px;
-            margin-bottom: 20px;
-        }
+h1 {
+    text-align: center;
+    margin-bottom: 10px;
+}
 
-        ul {
-            list-style: none;
-            padding: 0;
-        }
+input {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px;
+    margin: 20px auto;
+    display: block;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
 
-        li {
-            margin: 8px 0;
-        }
+.container {
+    max-width: 900px;
+    margin: auto;
+}
 
-        a {
-            text-decoration: none;
-            color: #0066cc;
-        }
+.card {
+    background: white;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
 
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+.category {
+    font-size: 12px;
+    padding: 3px 8px;
+    background: #e0e0e0;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+
+a.button {
+    background: #007bff;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+a.button:hover {
+    background: #0056b3;
+}
+</style>
+
 </head>
 
 <body>
 
-<h1>📄 Manual do Sistema Sysmart</h1>
+<h1>📄 Manual Sysmart</h1>
 
-<h2>🔎 Buscar relatório</h2>
-<input type="text" id="busca" placeholder="Digite o nome do PDF..." onkeyup="filtrar()">
+<input type="text" id="busca" placeholder="🔎 Buscar relatório..." onkeyup="filtrar()">
 
-<h2>📁 Lista de relatórios</h2>
-
-<div id="lista">Carregando PDFs...</div>
+<div class="container" id="lista">Carregando...</div>
 
 <script>
 
-let arquivosPDF = [];
+let arquivos = [];
 
-// carregar PDFs do GitHub
-async function carregarPDFs() {
-    const url = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf";
+// define categoria automaticamente pelo nome
+function categoria(nome) {
+    nome = nome.toLowerCase();
 
-    const resposta = await fetch(url);
-    arquivosPDF = await resposta.json();
+    if (nome.includes("sql")) return "SQL";
+    if (nome.includes("windows")) return "Windows";
+    if (nome.includes("backup")) return "Backup";
+    if (nome.includes("rede")) return "Rede";
 
-    mostrar(arquivosPDF);
+    return "Geral";
 }
 
-// mostrar lista na tela
+async function carregar() {
+    const url = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf";
+
+    const res = await fetch(url);
+    arquivos = await res.json();
+
+    arquivos.sort((a, b) => a.name.localeCompare(b.name));
+
+    mostrar(arquivos);
+}
+
 function mostrar(lista) {
-    let html = "<ul>";
+    let html = "";
 
     lista.forEach(file => {
-        if (file.name.endsWith(".pdf")) {
-            const nome = file.name.replace(".pdf", "");
-            html += `<li>📄 <a href="${file.download_url}" target="_blank">${nome}</a></li>`;
-        }
-    });
+        if (!file.name.endsWith(".pdf")) return;
 
-    html += "</ul>";
+        let nome = file.name.replace(".pdf", "");
+        let cat = categoria(nome);
+
+        html += `
+        <div class="card">
+            <div>
+                📄 ${nome}
+                <span class="category">${cat}</span>
+            </div>
+
+            <a class="button" href="${file.download_url}" target="_blank">Download</a>
+        </div>`;
+    });
 
     document.getElementById("lista").innerHTML = html;
 }
 
-// filtro da busca
 function filtrar() {
     let texto = document.getElementById("busca").value.toLowerCase();
 
-    let filtrados = arquivosPDF.filter(file =>
-        file.name.toLowerCase().includes(texto)
+    let filtrados = arquivos.filter(f =>
+        f.name.toLowerCase().includes(texto)
     );
 
     mostrar(filtrados);
 }
 
-carregarPDFs();
+carregar();
 
 </script>
 
