@@ -76,6 +76,7 @@ input {
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
 /* BUTTON */
@@ -85,6 +86,7 @@ a {
     background: #2563eb;
     color: white;
     border-radius: 6px;
+    font-size: 13px;
 }
 
 /* DARK BUTTON */
@@ -166,10 +168,16 @@ function atualizar() {
 
     lista.forEach(f => {
         let nome = f.name.replace(".pdf", "");
+
         html += `
         <div class="card">
             <div>📄 ${nome}</div>
-            <a href="${f.download_url}" target="_blank">Download</a>
+            <div style="display:flex; gap:8px;">
+                <a href="${f.download_url}" target="_blank">Download</a>
+                <a href="https://docs.google.com/gview?url=${encodeURIComponent(f.download_url)}&embedded=true" target="_blank">
+                    Visualizar
+                </a>
+            </div>
         </div>`;
     });
 
@@ -188,10 +196,16 @@ function buscar() {
 
     filtrado.forEach(f => {
         let nome = f.name.replace(".pdf", "");
+
         html += `
         <div class="card">
             <div>📄 ${nome}</div>
-            <a href="${f.download_url}" target="_blank">Download</a>
+            <div style="display:flex; gap:8px;">
+                <a href="${f.download_url}" target="_blank">Download</a>
+                <a href="https://docs.google.com/gview?url=${encodeURIComponent(f.download_url)}&embedded=true" target="_blank">
+                    Visualizar
+                </a>
+            </div>
         </div>`;
     });
 
