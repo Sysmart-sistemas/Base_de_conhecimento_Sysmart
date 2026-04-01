@@ -2,99 +2,90 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Sysmart Manual</title>
+<title>Manual Sysmart</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
-:root {
-    --bg: #f4f6f9;
-    --card: white;
-    --text: #222;
-    --sidebar: #1f2937;
-    --sidebar-text: white;
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #f4f6f9;
+    transition: 0.3s;
 }
 
 body.dark {
-    --bg: #111827;
-    --card: #1f2937;
-    --text: white;
-    --sidebar: #000;
-    --sidebar-text: #fff;
+    background: #111827;
+    color: white;
 }
 
-body {
-    margin: 0;
-    font-family: Arial;
-    background: var(--bg);
-    color: var(--text);
-    display: flex;
+header {
+    padding: 15px;
+    background: #1f2937;
+    color: white;
+    text-align: center;
 }
 
-/* SIDEBAR */
-.sidebar {
-    width: 220px;
-    background: var(--sidebar);
-    color: var(--sidebar-text);
-    height: 100vh;
+.container {
+    max-width: 900px;
+    margin: auto;
     padding: 20px;
-    position: fixed;
-}
-
-.sidebar h2 {
-    font-size: 18px;
-}
-
-.menu {
-    margin-top: 20px;
-}
-
-.menu div {
-    margin: 10px 0;
-    cursor: pointer;
-}
-
-/* MAIN */
-.main {
-    margin-left: 240px;
-    padding: 20px;
-    width: 100%;
 }
 
 input {
     width: 100%;
-    max-width: 500px;
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-/* CARD */
-.card {
-    background: var(--card);
     padding: 12px;
     margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.card {
+    background: white;
+    padding: 12px;
+    margin: 8px 0;
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
+    transition: 0.2s;
 }
 
-/* BUTTON */
+body.dark .card {
+    background: #1f2937;
+}
+
+.card:hover {
+    transform: scale(1.01);
+}
+
+.badge {
+    font-size: 12px;
+    background: #ddd;
+    padding: 3px 8px;
+    border-radius: 5px;
+    margin-left: 8px;
+}
+
 a {
     text-decoration: none;
-    padding: 6px 10px;
     background: #2563eb;
     color: white;
+    padding: 6px 10px;
     border-radius: 6px;
 }
 
-/* DARK BUTTON */
-.toggle {
-    cursor: pointer;
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+button {
     padding: 6px 10px;
-    background: #444;
-    color: white;
+    border: none;
     border-radius: 6px;
-    display: inline-block;
+    cursor: pointer;
 }
 </style>
 
@@ -102,111 +93,107 @@ a {
 
 <body>
 
-<div class="sidebar">
-    <h2>📁 Sysmart</h2>
+<header>
+    📄 Manual Sysmart
+</header>
 
-    <div class="menu">
-        <div onclick="filtrarCategoria('')"><i class="fa fa-list"></i> Todos (<span id="total">0</span>)</div>
-        <div onclick="filtrarCategoria('sql')"><i class="fa fa-database"></i> SQL</div>
-        <div onclick="filtrarCategoria('windows')"><i class="fa fa-desktop"></i> Windows</div>
-        <div onclick="filtrarCategoria('backup')"><i class="fa fa-box"></i> Backup</div>
-        <div onclick="filtrarCategoria('rede')"><i class="fa fa-network-wired"></i> Rede</div>
-    </div>
+<div class="container">
 
-    <br>
-    <div class="toggle" onclick="toggleDark()">🌙 Modo</div>
+<div class="topbar">
+    <div id="total">Carregando...</div>
+    <button onclick="toggleDark()">🌙 Modo</button>
 </div>
 
-<div class="main">
+<input type="text" id="busca" placeholder="🔎 Buscar relatório..." onkeyup="filtrar()">
 
-<h1>📄 Manual Sysmart</h1>
-
-<input type="text" id="busca" placeholder="🔎 Buscar tipo Google..." onkeyup="buscar()">
-
-<div id="lista">Carregando...</div>
+<div id="lista">Carregando PDFs...</div>
 
 </div>
 
 <script>
 
 let arquivos = [];
-let filtroAtual = "";
 
-// categoria
-function categoria(nome) {
-    nome = nome.toLowerCase();
-    if (nome.includes("sql")) return "sql";
-    if (nome.includes("windows")) return "windows";
-    if (nome.includes("backup")) return "backup";
-    if (nome.includes("rede")) return "rede";
-    return "outros";
+// remover acento simples
+function normalizar(texto) {
+    return texto.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
 }
 
-// carregar arquivos
+// categoria simples
+function categoria(nome) {
+    nome = nome.toLowerCase();
+    if (nome.includes("sql")) return "SQL";
+    if (nome.includes("windows")) return "Windows";
+    if (nome.includes("backup")) return "Backup";
+    if (nome.includes("rede")) return "Rede";
+    return "Geral";
+}
+
+// carregar PDFs
 async function carregar() {
     const url = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf";
 
     const res = await fetch(url);
     arquivos = await res.json();
 
-    atualizar();
+    arquivos = arquivos.filter(f => f.name.endsWith(".pdf"));
+
+    document.getElementById("total").innerText = "📊 Total: " + arquivos.length;
+
+    render(arquivos);
 }
 
-// mostrar
-function atualizar() {
-    let lista = arquivos.filter(f => f.name.endsWith(".pdf"));
-
-    if (filtroAtual) {
-        lista = lista.filter(f => categoria(f.name) === filtroAtual);
-    }
-
-    document.getElementById("total").innerText = lista.length;
-
+// render
+function render(lista, termo="") {
     let html = "";
 
     lista.forEach(f => {
+
         let nome = f.name.replace(".pdf", "");
+        let cat = categoria(nome);
+
+        // destaque busca
+        if (termo) {
+            let n = normalizar(nome);
+            if (!n.includes(termo)) return;
+        }
+
         html += `
         <div class="card">
-            <div>📄 ${nome}</div>
+            <div>
+                📄 ${nome}
+                <span class="badge">${cat}</span>
+            </div>
+
             <a href="${f.download_url}" target="_blank">Download</a>
         </div>`;
     });
 
-    document.getElementById("lista").innerHTML = html;
+    document.getElementById("lista").innerHTML = html || "Nenhum resultado";
 }
 
-// busca tipo Google
-function buscar() {
-    let t = document.getElementById("busca").value.toLowerCase();
-
-    let filtrado = arquivos.filter(f =>
-        f.name.toLowerCase().includes(t)
-    );
-
-    let html = "";
-
-    filtrado.forEach(f => {
-        let nome = f.name.replace(".pdf", "");
-        html += `
-        <div class="card">
-            <div>📄 ${nome}</div>
-            <a href="${f.download_url}" target="_blank">Download</a>
-        </div>`;
-    });
-
-    document.getElementById("lista").innerHTML = html;
+// busca inteligente
+function filtrar() {
+    let t = normalizar(document.getElementById("busca").value);
+    render(arquivos, t);
 }
 
-// filtro sidebar
-function filtrarCategoria(cat) {
-    filtroAtual = cat;
-    atualizar();
-}
-
-// modo escuro
+// dark mode com memória
 function toggleDark() {
     document.body.classList.toggle("dark");
+
+    if (document.body.classList.contains("dark")) {
+        localStorage.setItem("mode", "dark");
+    } else {
+        localStorage.setItem("mode", "light");
+    }
+}
+
+// carregar preferência
+if (localStorage.getItem("mode") === "dark") {
+    document.body.classList.add("dark");
 }
 
 carregar();
