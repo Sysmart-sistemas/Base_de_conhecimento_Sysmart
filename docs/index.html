@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sysmart Manual</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -9,285 +10,286 @@
 <style>
 :root {
     --bg: #f4f6f9;
-    --card: white;
-    --text: #222;
-    --sidebar: #1f2937;
-    --sidebar-text: white;
+    --card: #ffffff;
+    --text: #1f2937;
+    --primary: #2563eb;
 }
 
 body.dark {
-    --bg: #111827;
-    --card: #1f2937;
-    --text: white;
-    --sidebar: #000;
-    --sidebar-text: #fff;
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f1f5f9;
 }
+
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
-    font-family: Arial;
+    font-family: 'Segoe UI', sans-serif;
     background: var(--bg);
     color: var(--text);
-    display: flex;
 }
+
+.container { display: flex; min-height: 100vh; }
 
 .sidebar {
-    width: 220px;
-    background: var(--sidebar);
-    color: var(--sidebar-text);
-    height: 100vh;
+    width: 240px;
+    background: #111827;
+    color: white;
     padding: 20px;
-    position: fixed;
+    transition: width 0.3s;
 }
+
+.sidebar.collapsed { width: 70px; }
+.sidebar.collapsed span,
+.sidebar.collapsed h2 { display: none; }
 
 .menu div {
-    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
     cursor: pointer;
 }
+.menu div:hover { background: #1f2937; }
 
-.main {
-    margin-left: 240px;
-    padding: 20px;
-    width: 100%;
+.main { flex: 1; padding: 20px; }
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    padding: 6px 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 200px;
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .search-box input {
+        width: 100%;
+    }
 }
 
 input {
-    width: 100%;
-    max-width: 500px;
     padding: 10px;
-    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 100%;
+    max-width: 400px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
 }
 
 .card {
     background: var(--card);
+    border-radius: 12px;
     padding: 12px;
-    margin: 10px 0;
-    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: 0.3s;
+}
+
+.card:hover { transform: translateY(-5px); }
+
+.thumb {
+    height: 100px;
+    background: #e5e7eb;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: center;
+    font-size: 30px;
 }
 
-a {
-    text-decoration: none;
-    padding: 6px 10px;
-    background: #2563eb;
-    color: white;
-    border-radius: 6px;
-    font-size: 13px;
-}
-
-h2.section {
-    margin-top: 30px;
-    border-left: 4px solid #2563eb;
-    padding-left: 10px;
-}
-
-.toggle {
-    cursor: pointer;
-    padding: 6px 10px;
-    background: #444;
-    color: white;
-    border-radius: 6px;
+.card a {
     display: inline-block;
+    margin: 4px 4px 0 0;
+    padding: 5px 8px;
+    background: var(--primary);
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.footer {
+    text-align: center;
+    padding: 15px;
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+    .container { flex-direction: column; }
 }
 </style>
-
 </head>
 
 <body>
 
-<div class="sidebar">
+<div class="container">
+
+<div class="sidebar" id="sidebar">
     <h2>📁 Sysmart</h2>
+    <button onclick="toggleSidebar()">☰</button>
 
     <div class="menu">
-        <div onclick="filtrarTipo('todos')">📁 Todos</div>
-        <div onclick="filtrarTipo('pdf')">📄 PDFs</div>
-        <div onclick="filtrarTipo('script')">💻 Scripts</div>
-        <div onclick="filtrarTipo('python')">🐍 Python</div>
+        <div onclick="filtrarTipo('todos')"><span>Todos</span></div>
+        <div onclick="filtrarTipo('pdf')"><span>PDFs</span></div>
+        <div onclick="filtrarTipo('script')"><span>Scripts</span></div>
+        <div onclick="filtrarTipo('python')"><span>Python</span></div>
     </div>
 
     <br>
-    <div class="toggle" onclick="toggleDark()">🌙 Modo</div>
+    <button onclick="toggleDark()">🌙</button>
 </div>
 
 <div class="main">
 
-<h1>📄 Manual Sysmart</h1>
+<div class="header">
+    <h1>📄 Manual Sysmart</h1>
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="busca" placeholder="Pesquisar..." onkeyup="buscar()">
+    </div>
+</div>
 
-<input type="text" id="busca" placeholder="🔎 Pesquisar..." onkeyup="buscar()">
+<div id="conteudo"></div>
 
-<div id="conteudo">Carregando...</div>
+<div class="footer">
+    <img src="https://via.placeholder.com/120x40?text=Sysmart">
+    <div>© 2026 Sysmart Sistemas</div>
+</div>
 
+</div>
 </div>
 
 <script>
+let dados = { pdf: [], script: [], python: [] };
+let filtro = 'todos';
+let termoBusca = '';
 
-let pdfs = [];
-let scripts = [];
-let projetosPython = [];
-let filtro = "todos";
+const urls = {
+    pdf: "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf",
+    script: "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/script",
+    python: "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/projeto_em_python"
+};
 
-// carregar dados
 async function carregar() {
-
-    const pdfUrl = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/pdf";
-    const scriptUrl = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/script";
-    const pythonUrl = "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/projeto_em_python";
-
-    const [pdfRes, scriptRes, pythonRes] = await Promise.all([
-        fetch(pdfUrl),
-        fetch(scriptUrl),
-        fetch(pythonUrl)
-    ]);
-
-    pdfs = await pdfRes.json();
-    scripts = await scriptRes.json();
-    projetosPython = await pythonRes.json();
-
+    const promises = Object.entries(urls).map(async ([tipo, url]) => {
+        const res = await fetch(url);
+        dados[tipo] = await res.json();
+    });
+    await Promise.all(promises);
     render();
 }
 
-// render
-function render() {
-
-    let html = "";
-
-    // PDFs
-    if (filtro === "todos" || filtro === "pdf") {
-        html += `<h2 class="section">📄 PDFs</h2>`;
-
-        pdfs.forEach(f => {
-            if (!f.name.endsWith(".pdf")) return;
-
-            let nome = f.name.replace(".pdf", "");
-
-            html += `
-            <div class="card">
-                <div>📄 ${nome}</div>
-                <div style="display:flex; gap:8px;">
-                    <a href="${f.download_url}" target="_blank">Download</a>
-                    <a href="https://docs.google.com/gview?url=${encodeURIComponent(f.download_url)}&embedded=true" target="_blank">
-                        Visualizar
-                    </a>
-                </div>
-            </div>`;
-        });
-    }
-
-    // Scripts
-    if (filtro === "todos" || filtro === "script") {
-        html += `<h2 class="section">💻 Scripts</h2>`;
-
-        scripts.forEach(f => {
-
-            html += `
-            <div class="card">
-                <div>💻 ${f.name}</div>
-                <div style="display:flex; gap:8px;">
-                    <a href="${f.download_url}" target="_blank">Download</a>
-                </div>
-            </div>`;
-        });
-    }
-
-    // Python
-    if (filtro === "todos" || filtro === "python") {
-        html += `<h2 class="section">🐍 Projetos Python</h2>`;
-
-        projetosPython.forEach(f => {
-
-            html += `
-            <div class="card">
-                <div>🐍 ${f.name}</div>
-                <div style="display:flex; gap:8px;">
-                    <a href="${f.html_url}" target="_blank">Abrir</a>
-                </div>
-            </div>`;
-        });
-    }
-
-    document.getElementById("conteudo").innerHTML = html;
+function cardPDF(f) {
+    return `<div class="card">
+        <div class="thumb">📄</div>
+        <b>${f.name}</b><br>
+        <a href="${f.download_url}" target="_blank">Download</a>
+        <a href="https://docs.google.com/gview?url=${encodeURIComponent(f.download_url)}&embedded=true" target="_blank">Ver</a>
+    </div>`;
 }
 
-// filtro sidebar
+function cardScript(f) {
+    return `<div class="card">
+        <div class="thumb">💻</div>
+        <b>${f.name}</b><br>
+        <a href="${f.download_url}" target="_blank">Download</a>
+    </div>`;
+}
+
+function cardPython(f) {
+    return `<div class="card">
+        <div class="thumb">🐍</div>
+        <b>${f.name}</b><br>
+        <a href="${f.html_url}" target="_blank">Abrir</a>
+    </div>`;
+}
+
+function render() {
+    let html = '';
+
+    if (filtro === 'todos' || filtro === 'pdf') {
+        html += `<h2>📄 PDFs</h2><div class="grid">`;
+        dados.pdf.filter(f => f.name.toLowerCase().includes(termoBusca))
+            .forEach(f => html += cardPDF(f));
+        html += `</div>`;
+    }
+
+    if (filtro === 'todos' || filtro === 'script') {
+        html += `<h2>💻 Scripts</h2><div class="grid">`;
+        dados.script.filter(f => f.name.toLowerCase().includes(termoBusca))
+            .forEach(f => html += cardScript(f));
+        html += `</div>`;
+    }
+
+    if (filtro === 'todos' || filtro === 'python') {
+        html += `<h2>🐍 Projetos Python</h2><div class="grid">`;
+        dados.python.filter(f => f.name.toLowerCase().includes(termoBusca))
+            .forEach(f => html += cardPython(f));
+        html += `</div>`;
+    }
+
+    document.getElementById('conteudo').innerHTML = html;
+}
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+let timeout;
+function buscar() {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        termoBusca = document.getElementById('busca').value.toLowerCase();
+        render();
+    }, 300);
+}
+
 function filtrarTipo(tipo) {
     filtro = tipo;
     render();
 }
 
-// busca
-function buscar() {
-    let t = document.getElementById("busca").value.toLowerCase();
-
-    let html = "";
-
-    if (filtro === "todos" || filtro === "pdf") {
-        html += `<h2 class="section">📄 PDFs</h2>`;
-
-        pdfs
-            .filter(f => f.name.toLowerCase().includes(t))
-            .forEach(f => {
-
-                let nome = f.name.replace(".pdf", "");
-
-                html += `
-                <div class="card">
-                    <div>📄 ${nome}</div>
-                    <div style="display:flex; gap:8px;">
-                        <a href="${f.download_url}" target="_blank">Download</a>
-                        <a href="https://docs.google.com/gview?url=${encodeURIComponent(f.download_url)}&embedded=true" target="_blank">
-                            Visualizar
-                        </a>
-                    </div>
-                </div>`;
-            });
-    }
-
-    if (filtro === "todos" || filtro === "script") {
-        html += `<h2 class="section">💻 Scripts</h2>`;
-
-        scripts
-            .filter(f => f.name.toLowerCase().includes(t))
-            .forEach(f => {
-
-                html += `
-                <div class="card">
-                    <div>💻 ${f.name}</div>
-                    <div style="display:flex; gap:8px;">
-                        <a href="${f.download_url}" target="_blank">Download</a>
-                    </div>
-                </div>`;
-            });
-    }
-
-    if (filtro === "todos" || filtro === "python") {
-        html += `<h2 class="section">🐍 Projetos Python</h2>`;
-
-        projetosPython
-            .filter(f => f.name.toLowerCase().includes(t))
-            .forEach(f => {
-
-                html += `
-                <div class="card">
-                    <div>🐍 ${f.name}</div>
-                    <div style="display:flex; gap:8px;">
-                        <a href="${f.html_url}" target="_blank">Abrir</a>
-                    </div>
-                </div>`;
-            });
-    }
-
-    document.getElementById("conteudo").innerHTML = html;
-}
-
-// modo escuro
 function toggleDark() {
-    document.body.classList.toggle("dark");
+    document.body.classList.toggle('dark');
 }
 
 carregar();
-
 </script>
 
 </body>
