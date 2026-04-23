@@ -9,149 +9,177 @@
 
 <style>
 :root {
-    --bg: #f4f6f9;
+    --bg: #f8fafc;
     --card: #ffffff;
-    --text: #1f2937;
-    --primary: #2563eb;
+    --text: #0f172a;
+    --primary: #3b82f6;
+    --border: #e2e8f0;
 }
 
 body.dark {
-    --bg: #0f172a;
-    --card: #1e293b;
-    --text: #f1f5f9;
+    --bg: #020617;
+    --card: #0f172a;
+    --text: #e2e8f0;
+    --border: #1e293b;
 }
 
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
 
 body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Inter', sans-serif;
     background: var(--bg);
     color: var(--text);
 }
 
-.container { display: flex; min-height: 100vh; }
-
-.sidebar {
-    width: 240px;
-    background: #111827;
-    color: white;
-    padding: 20px;
-    transition: width 0.3s;
+/* LAYOUT */
+.container {
+    display: flex;
+    min-height: 100vh;
 }
 
-.sidebar.collapsed { width: 70px; }
-.sidebar.collapsed span,
-.sidebar.collapsed h2 { display: none; }
+/* SIDEBAR */
+.sidebar {
+    width: 250px;
+    background: #020617;
+    color: white;
+    padding: 20px;
+    transition: 0.3s;
+}
+
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar h2 {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.sidebar.collapsed span {
+    display: none;
+}
 
 .menu div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     padding: 10px;
     border-radius: 8px;
     cursor: pointer;
+    transition: 0.2s;
 }
-.menu div:hover { background: #1f2937; }
 
-.main { flex: 1; padding: 20px; }
+.menu div:hover {
+    background: #1e293b;
+}
 
+/* MAIN */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* HEADER */
 .header {
+    background: var(--card);
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.header h1 {
-    margin: 0;
-    font-size: 22px;
+    position: sticky;
+    top: 0;
 }
 
 .search-box {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: var(--card);
-    padding: 6px 10px;
+    background: var(--bg);
+    padding: 8px 12px;
     border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    gap: 8px;
+    border: 1px solid var(--border);
 }
 
 .search-box input {
     border: none;
     outline: none;
     background: transparent;
-    width: 200px;
 }
 
-@media (max-width: 768px) {
-    .header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .search-box {
-        width: 100%;
-    }
-
-    .search-box input {
-        width: 100%;
-    }
+/* CONTENT */
+.content {
+    padding: 20px;
 }
 
-input {
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    width: 100%;
-    max-width: 400px;
-}
-
+/* GRID */
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
-    margin-top: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+    margin-top: 15px;
 }
 
+/* CARD */
 .card {
     background: var(--card);
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    transition: 0.3s;
+    border-radius: 14px;
+    padding: 15px;
+    border: 1px solid var(--border);
+    transition: 0.25s;
 }
 
-.card:hover { transform: translateY(-5px); }
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
 
 .thumb {
-    height: 100px;
-    background: #e5e7eb;
+    height: 90px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 30px;
+    font-size: 28px;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.card b {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
 }
 
 .card a {
     display: inline-block;
-    margin: 4px 4px 0 0;
-    padding: 5px 8px;
+    margin: 3px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
     background: var(--primary);
     color: white;
-    border-radius: 6px;
     text-decoration: none;
-    font-size: 12px;
 }
 
+/* FOOTER */
 .footer {
     text-align: center;
     padding: 15px;
-    font-size: 13px;
-    opacity: 0.7;
+    font-size: 12px;
+    opacity: 0.6;
 }
 
+/* MOBILE */
 @media (max-width: 768px) {
-    .container { flex-direction: column; }
+    .container {
+        flex-direction: column;
+    }
 }
 </style>
 </head>
@@ -161,35 +189,40 @@ input {
 <div class="container">
 
 <div class="sidebar" id="sidebar">
-    <h2>📁 Sysmart</h2>
-    <button onclick="toggleSidebar()">☰</button>
+    <h2>📁 <span>Sysmart</span></h2>
 
     <div class="menu">
-        <div onclick="filtrarTipo('todos')"><span>Todos</span></div>
-        <div onclick="filtrarTipo('pdf')"><span>PDFs</span></div>
-        <div onclick="filtrarTipo('script')"><span>Scripts</span></div>
-        <div onclick="filtrarTipo('python')"><span>Python</span></div>
+        <div onclick="filtrarTipo('todos')"><i class="fas fa-layer-group"></i> <span>Todos</span></div>
+        <div onclick="filtrarTipo('pdf')"><i class="fas fa-file-pdf"></i> <span>PDFs</span></div>
+        <div onclick="filtrarTipo('script')"><i class="fas fa-code"></i> <span>Scripts</span></div>
+        <div onclick="filtrarTipo('python')"><i class="fab fa-python"></i> <span>Python</span></div>
     </div>
 
     <br>
-    <button onclick="toggleDark()">🌙</button>
+
+    <div class="menu">
+        <div onclick="toggleSidebar()"><i class="fas fa-bars"></i> <span>Menu</span></div>
+        <div onclick="toggleDark()"><i class="fas fa-moon"></i> <span>Dark</span></div>
+    </div>
 </div>
 
 <div class="main">
 
 <div class="header">
     <h1>📄 Manual Sysmart</h1>
+
     <div class="search-box">
         <i class="fas fa-search"></i>
         <input type="text" id="busca" placeholder="Pesquisar..." onkeyup="buscar()">
     </div>
 </div>
 
-<div id="conteudo"></div>
+<div class="content" id="conteudo">
+    <p>Carregando arquivos...</p>
+</div>
 
 <div class="footer">
-    <img src="logo.png">
-    <div>© 2026 Sysmart Sistemas</div>
+    © 2026 Sysmart Sistemas
 </div>
 
 </div>
@@ -206,62 +239,80 @@ const urls = {
     python: "https://api.github.com/repos/Sysmart-sistemas/Base_de_conhecimento_Sysmart/contents/static/projeto_em_python"
 };
 
+function escapeHTML(str) {
+    return str.replace(/[&<>"']/g, tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[tag]));
+}
+
 async function carregar() {
-    const promises = Object.entries(urls).map(async ([tipo, url]) => {
-        const res = await fetch(url);
-        dados[tipo] = await res.json();
-    });
-    await Promise.all(promises);
-    render();
+    try {
+        const promises = Object.entries(urls).map(async ([tipo, url]) => {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error();
+            dados[tipo] = await res.json();
+        });
+
+        await Promise.all(promises);
+        render();
+    } catch {
+        document.getElementById('conteudo').innerHTML =
+            `<p>Erro ao carregar dados 😢</p>`;
+    }
 }
 
-function cardPDF(f) {
-    return `<div class="card">
-        <div class="thumb">📄</div>
-        <b>${f.name}</b><br>
-        <a href="${f.download_url}" target="_blank">Download</a>
-        <a href="https://docs.google.com/gview?url=${encodeURIComponent(f.download_url)}&embedded=true" target="_blank">Ver</a>
-    </div>`;
-}
-
-function cardScript(f) {
-    return `<div class="card">
-        <div class="thumb">💻</div>
-        <b>${f.name}</b><br>
-        <a href="${f.download_url}" target="_blank">Download</a>
-    </div>`;
-}
-
-function cardPython(f) {
-    return `<div class="card">
-        <div class="thumb">🐍</div>
-        <b>${f.name}</b><br>
-        <a href="${f.html_url}" target="_blank">Abrir</a>
+function criarCard(icone, nome, links) {
+    return `
+    <div class="card">
+        <div class="thumb">${icone}</div>
+        <b>${escapeHTML(nome)}</b>
+        ${links.join('')}
     </div>`;
 }
 
 function render() {
     let html = '';
 
+    const filtrar = (lista) =>
+        lista.filter(f => f.name.toLowerCase().includes(termoBusca));
+
     if (filtro === 'todos' || filtro === 'pdf') {
         html += `<h2>📄 PDFs</h2><div class="grid">`;
-        dados.pdf.filter(f => f.name.toLowerCase().includes(termoBusca))
-            .forEach(f => html += cardPDF(f));
+        filtrar(dados.pdf).forEach(f => {
+            html += criarCard("📄", f.name, [
+                `<a href="${f.download_url}" target="_blank">Download</a>`,
+                `<a href="https://docs.google.com/gview?url=${encodeURIComponent(f.download_url)}&embedded=true" target="_blank">Ver</a>`
+            ]);
+        });
         html += `</div>`;
     }
 
     if (filtro === 'todos' || filtro === 'script') {
         html += `<h2>💻 Scripts</h2><div class="grid">`;
-        dados.script.filter(f => f.name.toLowerCase().includes(termoBusca))
-            .forEach(f => html += cardScript(f));
+        filtrar(dados.script).forEach(f => {
+            html += criarCard("💻", f.name, [
+                `<a href="${f.download_url}" target="_blank">Download</a>`
+            ]);
+        });
         html += `</div>`;
     }
 
     if (filtro === 'todos' || filtro === 'python') {
-        html += `<h2>🐍 Projetos Python</h2><div class="grid">`;
-        dados.python.filter(f => f.name.toLowerCase().includes(termoBusca))
-            .forEach(f => html += cardPython(f));
+        html += `<h2>🐍 Python</h2><div class="grid">`;
+        filtrar(dados.python).forEach(f => {
+            html += criarCard("🐍", f.name, [
+                `<a href="${f.html_url}" target="_blank">Abrir</a>`
+            ]);
+        });
         html += `</div>`;
+    }
+
+    if (!html) {
+        html = `<p>Nenhum resultado encontrado 😕</p>`;
     }
 
     document.getElementById('conteudo').innerHTML = html;
@@ -287,6 +338,11 @@ function filtrarTipo(tipo) {
 
 function toggleDark() {
     document.body.classList.toggle('dark');
+    localStorage.setItem('dark', document.body.classList.contains('dark'));
+}
+
+if (localStorage.getItem('dark') === 'true') {
+    document.body.classList.add('dark');
 }
 
 carregar();
